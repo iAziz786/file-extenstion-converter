@@ -16,15 +16,16 @@ function crawlFiles(startingPoint, excludeFolder) {
     } else {
       files.forEach((file) => {
         let isDir, isFile;
-        const stats = fs.lstatSync(`${startingPoint}/${file}`);
-        isDir = stats.isDirectory();
-        isFile = stats.isFile();
-        if (isFile && path.extname(file) === '.jsx') {
-          let newFileName = file.substring(0, file.lastIndexOf('.')) + '.js';
-          renameIt(`${startingPoint}/${file}`, `${startingPoint}/${newFileName}`);
-        } else if (isDir && file !== excludeFolder) {
-          crawlFiles(`${startingPoint}/${file}`)
-        }
+        const stats = fs.lstat(`${startingPoint}/${file}`, (err, stats) => {
+          isDir = stats.isDirectory();
+          isFile = stats.isFile();
+          if (isFile && path.extname(file) === '.jsx') {
+            let newFileName = file.substring(0, file.lastIndexOf('.')) + '.js';
+            renameIt(`${startingPoint}/${file}`, `${startingPoint}/${newFileName}`);
+          } else if (isDir && file !== excludeFolder) {
+            crawlFiles(`${startingPoint}/${file}`)
+          }
+        });
       })
     }
   })
